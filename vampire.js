@@ -40,17 +40,39 @@ class Vampire {
 
   // Returns the vampire object with that name, or null if no vampire exists with that name
   vampireWithName(name) {
-    
+    let ret = null;
+    if (this.name === name){
+      ret = this;
+    }
+    for (let child of this.offspring){
+      let childName = child.vampireWithName(name);
+      if (childName){
+        ret = childName
+      }
+    }
+    return ret;
   }
 
   // Returns the total number of vampires that exist
   get totalDescendents() {
-    
+    let total = 0;
+    for (let child of this.offspring){
+      total += child.totalDescendents + 1
+    }
+    return total;
   }
 
   // Returns an array of all the vampires that were converted after 1980
   get allMillennialVampires() {
-    
+    let millennials = [];
+    if (this.yearConverted >= 1980){
+      millennials.push(this)
+    }
+    for (let child of this.offspring){
+      millennials = [...millennials, ...child.allMillennialVampires];
+    }
+    // console.log(millennials)
+    return millennials;
   }
 
   /** Stretch **/
@@ -61,19 +83,13 @@ class Vampire {
   // * when comparing Ansel and Sarah, Ansel is the closest common anscestor.
   // * when comparing Ansel and Andrew, Ansel is the closest common anscestor.
   closestCommonAncestor(vampire) {
-    let vampire1 = this;
-    while (vampire1.creator && vampire.creator){
-      if (vampire1.creator === vampire.creator){
-        return vampire1.creator;
-      } else if (vampire1 === vampire.creator){
-        return vampire1;
-      } else if (vampire1.creator === vampire){
-        return vampire;
-      }
-      vampire1=vampire1.creator;
-      vampire = vampire.creator;
+    if (this === vampire || this.creator === null){
+      return this;
+    } else if (this.isMoreSeniorThan(vampire)){
+      return vampire.creator.closestCommonAncestor(this) 
+    } else{
+      return this.creator.closestCommonAncestor(vampire);
     }
-    return vampire1;
   }
 }
 
